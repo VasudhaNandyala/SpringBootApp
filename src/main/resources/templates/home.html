@@ -1,0 +1,432 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>User Management Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 35px 20px;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 30px;
+            color: #172554;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        a,
+        button {
+            display: inline-block;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 7px;
+            text-decoration: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .add {
+            background: #2563eb;
+            color: white;
+        }
+
+        .add:hover {
+            background: #1d4ed8;
+        }
+
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            border: 1px solid #e5eaf2;
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 24px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+        }
+
+        .summary-label {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .summary-count {
+            font-size: 30px;
+            font-weight: 700;
+            color: #1d4ed8;
+        }
+
+        .table-card {
+            background: white;
+            border: 1px solid #e5eaf2;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+        }
+
+        .table-heading {
+            padding: 22px;
+            border-bottom: 1px solid #e5eaf2;
+        }
+
+        .table-heading h2 {
+            margin: 0 0 7px;
+            font-size: 19px;
+        }
+
+        .table-heading p {
+            margin: 0;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 850px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 17px 20px;
+            text-align: left;
+            vertical-align: top;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        tbody tr:hover {
+            background: #fbfdff;
+        }
+
+        .user-id {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .user-name {
+            color: #1e293b;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .user-email {
+            color: #64748b;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .address-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 150px;
+        }
+
+        .address-item {
+            padding: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .address-city {
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 5px;
+        }
+
+        .address-state {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .address-id {
+            display: inline-block;
+            margin-top: 8px;
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .no-address {
+            display: inline-block;
+            color: #94a3b8;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        .actions {
+            white-space: nowrap;
+        }
+
+        .edit {
+            background: #dbeafe;
+            color: #1d4ed8;
+            margin-bottom: 5px;
+        }
+
+        .edit:hover {
+            background: #bfdbfe;
+        }
+
+        .delete {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .delete:hover {
+            background: #fecaca;
+        }
+
+        .delete-form {
+            display: inline;
+        }
+
+        .empty {
+            text-align: center;
+            color: #64748b;
+            padding: 35px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 22px 12px;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+
+            .summary {
+                padding: 18px;
+            }
+
+            .table-heading {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Page header -->
+    <div class="header">
+
+        <div>
+            <h1>User Management</h1>
+
+            <p class="subtitle">
+                Manage users and view their registered addresses.
+            </p>
+        </div>
+
+        <a class="add" th:href="@{/users/new}">
+            + Add User
+        </a>
+
+    </div>
+
+    <!-- User count -->
+    <div class="summary">
+
+        <div>
+            <div class="summary-label">Total Users</div>
+
+            <div class="summary-count"
+                 th:text="${#lists.size(users)}">
+                0
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Users table -->
+    <div class="table-card">
+
+        <div class="table-heading">
+            <h2>Users and Addresses</h2>
+
+            <p>
+                Address details are loaded from your database.
+            </p>
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User Details</th>
+                        <th>Addresses</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <!-- Display each user -->
+                    <tr th:each="user : ${users}">
+
+                        <td>
+                            <span class="user-id"
+                                  th:text="${user.id}">
+                                1
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="user-name"
+                                th:text="${user.name}">
+                                User name
+                            </div>
+
+                            <div class="user-email"
+                                th:text="${user.email}">
+                                user@example.com
+                            </div>
+
+                            <div class="user-email"
+                                th:if="${user.phoneNumber != null and !user.phoneNumber.isEmpty()}">
+                                Mobile: <span th:text="${user.phoneNumber}"></span>
+                            </div>
+                        </td>
+
+
+                        <!-- Addresses belonging to this user -->
+                        <td>
+
+                            <div class="address-list"
+                                 th:with="userAddresses=${addressesByUserId[user.id]}">
+
+                                <div class="address-item"
+                                     th:each="address : ${userAddresses}">
+
+                                    <div class="address-city">
+                                        <span th:text="${address.city}">
+                                            City
+                                        </span>
+                                    </div>
+
+                                    <div class="address-state">
+                                        <span th:text="${address.state}">
+                                            State
+                                        </span>
+                                    </div>
+
+                                    <span class="address-id">
+                                        Address ID:
+                                        <span th:text="${address.id}">
+                                            1
+                                        </span>
+                                    </span>
+
+                                </div>
+
+                                <span class="no-address"
+                                      th:if="${#lists.isEmpty(userAddresses)}">
+                                    No address added
+                                </span>
+
+                            </div>
+
+                        </td>
+
+                        <!-- Existing user actions -->
+                        <td class="actions">
+
+                            <a class="edit"
+                               th:href="@{/users/edit/{id}(id=${user.id})}">
+                                Edit
+                            </a>
+
+                            <form th:action="@{/users/delete/{id}(id=${user.id})}"
+                                method="post"
+                                onsubmit="console.log('Delete form submitted'); return window.confirm('Are you sure you want to delete this user?');">
+
+                                <button type="submit">Delete</button>
+
+                            </form> 
+                        </td>
+
+                    </tr>
+
+                    <!-- Show when there are no users -->
+                    <tr th:if="${#lists.isEmpty(users)}">
+
+                        <td colspan="4" class="empty">
+                            No users found.
+                            Click Add User to get started.
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

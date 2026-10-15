@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Form</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f4f6f9;
+        }
+
+        form {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        label {
+            display: block;
+            margin-top: 16px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .error {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button, .cancel {
+            display: inline-block;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+        }
+
+        .cancel {
+            background: #e5e7eb;
+            color: #222;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1 th:text="${formTitle}">User Form</h1>
+
+<form th:action="@{/users/save}" th:object="${user}" method="post">
+
+    <input type="hidden" th:field="*{id}">
+
+    <label for="name">Name</label>
+    <input id="name"
+           type="text"
+           th:field="*{name}"
+           required
+           minlength="2"
+           maxlength="100"
+           pattern="[A-Za-zÀ-ÖØ-öø-ÿ]+([ '-][A-Za-zÀ-ÖØ-öø-ÿ]+)*"
+           title="Enter a name using letters, spaces, hyphens, or apostrophes."
+           autocomplete="name">
+    <p class="error" id="nameError"></p>
+
+    <label for="email">Email</label>
+    <input id="email"
+           type="email"
+           th:field="*{email}"
+           required
+           maxlength="254"
+           autocomplete="email">
+    <p class="error" id="emailError"></p>
+
+    <label for="phoneNumber">Phone Number</label>
+    <input id="phoneNumber"
+           type="tel"
+           th:field="*{phoneNumber}"
+           required
+           minlength="7"
+           maxlength="20"
+           pattern="[+]?[0-9 ()-]{7,20}"
+           title="Enter a phone number using digits and optional +, spaces, hyphens, or parentheses."
+           autocomplete="tel">
+    <p class="error" id="phoneError"></p>
+
+    <label for="city">City</label>
+    <input id="city"
+           type="text"
+           name="city"
+           th:value="${address != null ? address.city : ''}"
+           required
+           maxlength="100"
+           pattern="[A-Za-zÀ-ÖØ-öø-ÿ]+([ .'-][A-Za-zÀ-ÖØ-öø-ÿ]+)*">
+    <p class="error" id="cityError"></p>
+
+    <label for="state">State</label>
+    <input id="state"
+           type="text"
+           name="state"
+           th:value="${address != null ? address.state : ''}"
+           required
+           maxlength="100"
+           pattern="[A-Za-zÀ-ÖØ-öø-ÿ]+([ .'-][A-Za-zÀ-ÖØ-öø-ÿ]+)*">
+    <p class="error" id="stateError"></p>
+
+    <div class="actions">
+        <button type="submit">Save User</button>
+        <a class="cancel" th:href="@{/}">Cancel</a>
+    </div>
+
+</form>
+
+<script>
+    const fields = [
+        { id: "name", errorId: "nameError" },
+        { id: "email", errorId: "emailError" },
+        { id: "phoneNumber", errorId: "phoneError" },
+        { id: "city", errorId: "cityError" },
+        { id: "state", errorId: "stateError" }
+    ];
+
+    fields.forEach(({ id, errorId }) => {
+        const input = document.getElementById(id);
+        const error = document.getElementById(errorId);
+
+        input.addEventListener("input", () => {
+            error.textContent = input.validity.valid
+                ? ""
+                : input.validationMessage;
+        });
+
+        input.addEventListener("invalid", () => {
+            error.textContent = input.validationMessage;
+        });
+    });
+</script>
+
+</body>
+</html>
